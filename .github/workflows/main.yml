@@ -1,0 +1,38 @@
+name: Teste Web AGIBANK
+
+on:
+  push:
+    branches:
+      - main
+      
+  workflow_dispatch:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Config Action
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Config Chrome WebDriver
+      run: |
+        wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE -O LATEST_RELEASE
+        CHROME_DRIVER_VERSION=$(cat LATEST_RELEASE)
+        wget https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip
+        sudo mv chromedriver /usr/local/bin/
+        sudo chown root:root /usr/local/bin/chromedriver
+        sudo chmod +x /usr/local/bin/chromedriver
+
+    - name: Instalar e executar testes Web AGIBANK
+      run: |
+        pip install -r requirements.txt
+        python -m pytest --html=reports/report.html
